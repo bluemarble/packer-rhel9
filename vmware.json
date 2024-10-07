@@ -1,0 +1,48 @@
+{
+  "variables": {
+      "basename": "rhel9",
+      "buildId": "",
+      "num_cpus": "2",
+      "memory": "2048",
+      "disk_size": "20000"
+  },
+  "builders": [{
+      "type": "vmware-iso",
+      "output_directory": "./output-{{ user `basename` }}/",
+      "boot_command": [
+        "<up><wait>",
+        "<tab> console=tty0 inst.text inst.ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/{{ user `kickstart` }}<enter><wait>"
+      ],
+      "boot_wait": "10s",
+      "cpus": "{{ user `num_cpus` }}",
+      "disk_size": "{{ user `disk_size` }}",
+      "disk_adapter_type": "nvme",
+      "display_name": "{{ user `basename` }}-{{ user `buildId` }}",
+      "guest_os_type": "{{ user `guest_os_type` }}",
+      "tools_upload_flavor": "",
+      "headless": false,
+      "http_directory": "http",
+      "iso_url": "{{ user `iso_url` }}",
+      "iso_checksum": "{{ user `iso_checksum` }}",
+      "memory": "{{ user `memory` }}",
+      "network": "nat",
+      "network_adapter_type": "vmxnet3",
+      "ssh_username": "packer",
+      "ssh_password": "packer",
+      "ssh_wait_timeout": "10000s",
+      "ssh_port": 22,
+      "shutdown_command": "echo 'packer' | sudo -E -S /sbin/shutdown -h now",
+      "version": "18",
+      "vm_name": "{{ user `basename` }}-{{ user `buildId` }}"
+  }],
+  "provisioners": [{
+      "type": "shell",
+      "execute_command": "echo 'packer' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'",
+      "environment_vars": [
+        "templateName={{ user `basename` }}-{{ user `buildId` }}"
+      ],
+      "scripts": [
+        "provisioners/base.sh"
+      ]
+  }]
+}
